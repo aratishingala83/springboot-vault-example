@@ -1,0 +1,18 @@
+
+
+1.Setup HashiCorp Vault using choco window or any other way
+2.Once done goto vault app ditectory and command prompt run "vault server -dev"  (In console you will get token that need to configure in application.properties)
+3.Check UI  http://127.0.0.1:8200/
+4. set  VAULT_ADDR=http://127.0.0.1:8200 for window (export VAULT_ADDR="http://127.0.0.1:8200" for linux)
+5.execute below command, please make it in single line
+
+"vault kv put secret/springboot-valut-example
+spring.datasource.database=mysql_demo
+spring.datasource.password=admin
+spring.datasource.username=root
+app.config.auth.token=5bd8b84a-7b9a-11ed-a1eb-0242ac120002
+app.config.auth.username=actuator"
+
+6. Set token
+
+
