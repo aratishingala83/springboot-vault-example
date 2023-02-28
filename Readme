@@ -16,3 +16,103 @@ app.config.auth.username=actuator"
 6. Set token
 
 
+
+[
+
+
+
+vault auth enable cert
+
+
+openssl genpkey -algorithm RSA -out ca.key
+openssl req -x509 -new -key ca.key -out ca.crt
+
+
+
+openssl genpkey -algorithm RSA -out client.key
+openssl req -new -key client.key -out client.csr
+
+
+
+openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -out client.crt -days 365 -sha256
+
+type client.crt client.key > my-cert.pem
+
+vault write auth/cert/certs/my-role   policies=secrets  certificate=@my-cert.pem ttl=3600 allow_any_name=true
+
+set VAULT_ADDR=http://127.0.0.1:8200
+set VAULT_TOKEN=hvs.Sn9GCw6XWocAfxK40ut7qhLx
+vault operator unseal XQIHJmGjn3thLvVTbhEHwySfgYTTQ6bKhwE4MbWkSf0=
+vault login hvs.Sn9GCw6XWocAfxK40ut7qhLx
+
+
+
+set VAULT_ADDR=https://127.0.0.1:8200
+set VAULT_TOKEN=hvs.Sn9GCw6XWocAfxK40ut7qhLx
+vault operator unseal XQIHJmGjn3thLvVTbhEHwySfgYTTQ6bKhwE4MbWkSf0=
+
+set VAULT_CACERT=C:\ProgramData\chocolatey\lib\vault\tools\ca.crt
+set VAULT_CLIENT_CERT=C:\ProgramData\chocolatey\lib\vault\tools\client.crt
+set VAULT_CLIENT_KEY=C:\ProgramData\chocolatey\lib\vault\tools\client.key
+vault login -method=cert -tls-cert=%VAULT_CLIENT_CERT% -tls-key=%VAULT_CLIENT_KEY%
+
+
+vault login -method=cert -tls-cert=C:\ProgramData\chocolatey\lib\vault\tools\client.crt -tls-key=C:\ProgramData\chocolatey\lib\vault\tools\client.key
+
+
+vault login -method=cert  certificate=@my-cert.pem nonce=my-nonce-value
+
+
+
+(Disable certificate validation for the Vault server by setting the VAULT_SKIP_VERIFY environment variable to true.)
+
+===========2===================
+
+vault auth enable cert
+
+openssl genpkey -algorithm RSA -out ca.key
+openssl req -x509 -new -key ca.key -out ca.crt
+
+type nul > openssl-server.cnf
+
+Edit config file and add below
+
+
+
+[req]
+req_extensions = san
+distinguished_name = req_distinguished_name
+
+[req_distinguished_name]
+countryName = Country Name (2 letter code)
+stateOrProvinceName = State or Province Name
+localityName = Locality Name
+organizationName = Organization Name
+organizationalUnitName = Organizational Unit Name
+commonName = Common Name
+emailAddress = Email Address
+
+[san]
+subjectAltName = IP:127.0.0.1,IP:192.168.1.100,DNS:vault.example.com
+
+
+
+openssl req -newkey rsa:2048 -nodes -keyout ca.key -out ca.csr -config openssl-server.cnf
+
+
+
+openssl genpkey -algorithm RSA -out client.key
+openssl req -new -key client.key -out client.csr
+
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -out server.crt -days 365 -sha256
+
+openssl x509 -req -in client.csr -CA server.crt -CAkey server.key -out client.crt -days 365 -sha256
+
+
+
+
+
+
+]
+
+
