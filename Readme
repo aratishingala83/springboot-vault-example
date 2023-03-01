@@ -19,6 +19,18 @@ app.config.auth.username=actuator"
 
 [
 
+vault.hcl
+----------
+listener "tcp" {
+  address = "localhost:8200"
+  tls_cert_file = "C://ProgramData//chocolatey//lib//vault//tools//server.crt"
+  tls_key_file = "C://ProgramData//chocolatey//lib//vault//tools//server.key"
+}
+storage "file" { 
+  path = "C://ProgramData//chocolatey//lib//vault//tools//test1"
+}
+ui = true
+
 
 
 vault auth enable cert
